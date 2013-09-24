@@ -1,5 +1,5 @@
 module SecQuery
-    class Relationship
+    class Relationship < JSONable
         
         ## Relationships are Owner / Issuer Relationships between Entities, forged by Transactions.
         

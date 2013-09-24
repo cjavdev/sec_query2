@@ -1,5 +1,5 @@
 module SecQuery
-    class Filing
+    class Filing < JSONable
         attr_accessor :cik, :title, :summary, :link, :term, :date, :file_id
         def initialize(filing)
             @cik = filing[:cik]

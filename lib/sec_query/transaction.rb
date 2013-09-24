@@ -1,5 +1,5 @@
 module SecQuery
-    class Transaction
+    class Transaction < JSONable
 
         attr_accessor :filing_number, :code, :date, :reporting_owner, :form, :type, :modes, :shares, :price, :owned, :number, :owner_cik, :security_name, :deemed, :exercise, :nature, :derivative, :underlying_1, :exercised,	:underlying_2, :expires, :underlying_3
     
