@@ -2,7 +2,7 @@ require "rubygems"
 require "i18n"
 require "rest-client"
 require "hpricot"
-require "active_support/core_ext"
+require "mongo_mapper"
 
 require "sec_query/version"
 require "sec_query/jsonable"
