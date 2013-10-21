@@ -1,15 +1,5 @@
-require "cgi"
 require "csv"
-require "json"
 require "sec_query"
-require "mongo"
-
-=begin
-@conn         = Mongo::Connection.new
-@db           = @conn['sec-db']
-@transactions = @db['transactions']
-@filings      = @db['filings']
-=end
 
 filename = "./data/companies.csv"
 ::CSV.foreach(filename, {:col_sep => ";"}) do |row|
@@ -23,18 +13,10 @@ filename = "./data/companies.csv"
       end
     end
 
-=begin
-    if !res.filings.empty?
-      # unescape summary
-      hashes = JSON.parse(res.filings.to_json)
-      hashes.each do |hash| 
-        hash['summary'] = CGI.unescapeHTML(hash['summary'])
-        @filings.insert(hash)
+    if !res.filings.nil?
+      res.filings.each do |filing|
+        filing.save
       end
-
-      File.open("./results/filings/#{symbol}.json", "w") { |f| f.write(hashes.to_json) }
-      puts "\tWrote filings"
     end
-=end
   end
 end
