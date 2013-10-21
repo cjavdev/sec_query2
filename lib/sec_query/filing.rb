@@ -2,7 +2,17 @@ module SecQuery
     class Filing
         include MongoMapper::Document
 
-        attr_accessor :cik, :title, :summary, :link, :term, :date, :file_id
+        attr_accessor :symbol, :cik, :title, :summary, :link, :term, :date, :file_id
+
+        key :symbol, String
+        key :cik, String
+        key :title, String
+        key :summary, String
+        key :link, String
+        key :term, String
+        key :date, Time
+        key :file_id, String
+
         def initialize(filing)
             @cik = filing[:cik]
             @title = filing[:title]
@@ -26,12 +36,15 @@ module SecQuery
             for entry in entries
                 query_more = true;
                 filing={}
+                filing[:symbol] = entity[:symbol]
                 filing[:cik] = entity[:cik]
                 filing[:title] = (entry/:title).innerHTML
                 filing[:summary] = (entry/:summary).innerHTML
                 filing[:link] =  (entry/:link)[0].get_attribute("href")
                 filing[:term] = (entry/:category)[0].get_attribute("term")
-                filing[:date] = (entry/:updated).innerHTML
+                if filing[:date] != nil and filing[:date] != "-"
+                  filing[:date] = DateTime.iso8601((entry/:updated).innerHTML).to_time
+                end
                 filing[:file_id] = (entry/:id).innerHTML.split("=").last
 
                 entity[:filings] << Filing.new(filing)              
