@@ -1,6 +1,8 @@
 module SecQuery
     class Relationship < JSONable
         
+        include MongoMapper::Document
+
         ## Relationships are Owner / Issuer Relationships between Entities, forged by Transactions.
         
         attr_accessor :name, :position, :date, :cik
@@ -60,4 +62,6 @@ module SecQuery
             end
         end
     end
+
+    timestamps!
 end

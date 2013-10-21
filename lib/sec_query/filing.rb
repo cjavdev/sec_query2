@@ -1,5 +1,7 @@
 module SecQuery
     class Filing < JSONable
+        include MongoMapper::Document
+
         attr_accessor :cik, :title, :summary, :link, :term, :date, :file_id
         def initialize(filing)
             @cik = filing[:cik]
@@ -41,5 +43,6 @@ module SecQuery
             end
         end 
     end
-
+    
+    timestamps!
 end

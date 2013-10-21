@@ -11,3 +11,4 @@ require "sec_query/relationship"
 require "sec_query/transaction"
 require "sec_query/filing"
 
+MongoMapper.database='sec-db'
