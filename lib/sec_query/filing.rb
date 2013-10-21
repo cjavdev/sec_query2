@@ -43,8 +43,10 @@ module SecQuery
                 filing[:summary] = CGI.unescapeHTML((entry/:summary).innerHTML)
                 filing[:link] =  (entry/:link)[0].get_attribute("href")
                 filing[:term] = (entry/:category)[0].get_attribute("term")
+                puts "updated = " + (entry/:updated).innerHTML
                 if entry[:updated] != nil and entry[:updated] != "-"
                   filing[:date] = DateTime.iso8601((entry/:updated).innerHTML).to_time
+                  puts "filing date = #{filing[:date]}"
                 end
                 filing[:file_id] = (entry/:id).innerHTML.split("=").last
 
