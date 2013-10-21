@@ -3,6 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 require "sec_query/version"
 require "sec_query"
+require "mongo_mapper"
 
 Gem::Specification.new do |s|
   s.name        = "sec_query"

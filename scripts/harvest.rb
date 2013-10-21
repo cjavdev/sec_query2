@@ -4,10 +4,12 @@ require "json"
 require "sec_query"
 require "mongo"
 
+=begin
 @conn         = Mongo::Connection.new
 @db           = @conn['sec-db']
 @transactions = @db['transactions']
 @filings      = @db['filings']
+=end
 
 filename = "./data/companies.csv"
 ::CSV.foreach(filename, {:col_sep => ";"}) do |row|
