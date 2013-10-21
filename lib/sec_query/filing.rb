@@ -39,7 +39,7 @@ module SecQuery
                 filing[:symbol] = entity[:symbol]
                 filing[:cik] = entity[:cik]
                 filing[:title] = (entry/:title).innerHTML
-                filing[:summary] = (entry/:summary).innerHTML
+                filing[:summary] = CGI.unescapeHTML((entry/:summary).innerHTML)
                 filing[:link] =  (entry/:link)[0].get_attribute("href")
                 filing[:term] = (entry/:category)[0].get_attribute("term")
                 if filing[:date] != nil and filing[:date] != "-"
