@@ -30,7 +30,9 @@ filename = "./data/companies.csv"
       File.open("./results/transactions/#{symbol}.json", "w") { |f| f.write(hashes.to_json) }
       puts "\tWrote transactions"
 =end
-      res.transactions.save
+      transactions.each do |trans|
+        trans.save
+      end
     end
 
 =begin
