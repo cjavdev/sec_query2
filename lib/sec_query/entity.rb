@@ -28,7 +28,12 @@ module SecQuery
         def self.find(entity_args, *options)
             
             temp = {}
-            temp[:symbol] = entity_args[:symbol]
+            if entity_args.is_a?(Hash)
+              temp[:symbol] = entity_args[:symbol]
+            elsif entity_args.is_a?(String)
+              temp[:symbol] = entity_args
+            end
+
             temp[:url] = Entity.url(entity_args)
             temp[:cik] = Entity.cik(temp[:url], entity_args)
         
