@@ -2,6 +2,12 @@ require "cgi"
 require "csv"
 require "json"
 require "sec_query"
+require "mongo"
+
+@conn         = Mongo::Connection.new
+@db           = @conn['sec-db']
+@transactions = @db['transactions']
+@filings      = @db['filings']
 
 filename = "./data/companies.csv"
 ::CSV.foreach(filename, {:col_sep => ";"}) do |row|
@@ -9,11 +15,13 @@ filename = "./data/companies.csv"
   puts symbol
   res = SecQuery::Entity.find(symbol, :transactions=> true, :filings=>true) 
   if res
+    # TODO: refactor (DRY)
     if !res.transactions.empty?
       # add in symbol
       hashes = JSON.parse(res.transactions.to_json)
       hashes.each do |hash| 
         hash['symbol'] = symbol
+        @transactions.insert(hash)
       end
 
       File.open("./results/transactions/#{symbol}.json", "w") { |f| f.write(hashes.to_json) }
@@ -25,6 +33,7 @@ filename = "./data/companies.csv"
       hashes = JSON.parse(res.filings.to_json)
       hashes.each do |hash| 
         hash['summary'] = CGI.unescapeHTML(hash['summary'])
+        @filings.insert(hash)
       end
 
       File.open("./results/filings/#{symbol}.json", "w") { |f| f.write(hashes.to_json) }
@@ -32,6 +41,3 @@ filename = "./data/companies.csv"
     end
   end
 end
-
-
-
