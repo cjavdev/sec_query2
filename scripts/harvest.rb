@@ -17,7 +17,7 @@ filename = "./data/companies.csv"
   puts symbol
   res = SecQuery::Entity.find(:symbol=> symbol, :transactions=> true, :filings=>true) 
   if res
-    if res.transactions?
+    if !res.transactions.nil?
       res.transactions.each do |trans|
         trans.save
       end
