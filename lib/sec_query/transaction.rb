@@ -2,7 +2,8 @@ module SecQuery
     class Transaction
         include MongoMapper::Document
 
-        attr_accessor :filing_number, :code, :date, :reporting_owner, :form, :type, :modes, :shares, :price, :owned, :number, :owner_cik, :security_name, :deemed, :exercise, :nature, :derivative, :underlying_1, :exercised,	:underlying_2, :expires, :underlying_3
+        attr_accessor :symbol, :filing_number, :code, :date, :reporting_owner, :form, :type, :modes, :shares, :price, :owned, :number, :owner_cik, :security_name, :deemed, :exercise, :nature, :derivative, :underlying_1, :exercised,	:underlying_2, :expires, :underlying_3
+        key :symbol, String
         key :filing_number, String
         key :code, String
         key :date, Time
@@ -26,6 +27,7 @@ module SecQuery
         key :underlying_3, String
     
         def initialize(transaction)
+            @symbol = transaction[:symbol]
             @filing_number = transaction[:form].split("/")[-2][0..19]
             @code = transaction[:code]
             puts transaction[:date]  
@@ -73,6 +75,7 @@ module SecQuery
                         query_more = true;
                         if !td[0].empty?
                         transaction={}
+                        transaction[:symbol] = entity[:symbol]
                         transaction[:code] = td[0].innerHTML;
                         transaction[:date] = td[1].innerHTML;
                         transaction[:reporting_owner] = td[2].innerHTML;
