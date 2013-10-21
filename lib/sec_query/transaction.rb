@@ -3,6 +3,27 @@ module SecQuery
         include MongoMapper::Document
 
         attr_accessor :filing_number, :code, :date, :reporting_owner, :form, :type, :modes, :shares, :price, :owned, :number, :owner_cik, :security_name, :deemed, :exercise, :nature, :derivative, :underlying_1, :exercised,	:underlying_2, :expires, :underlying_3
+        key :filing_number, String
+        key :code, String
+        key :date, Time
+        key :reporting_owner, String
+        key :form, String
+        key :type, String
+        key :modes, String
+        key :shares, String
+        key :price, String
+        key :owned, String
+        key :number, String
+        key :owner_cik, String
+        key :security_name, String
+        key :exercise, String
+        key :nature, String
+        key :derivative, String
+        key :underlying_1, String
+        key :exercised,	String
+        key :underlying_2, String
+        key :expires, String
+        key :underlying_3, String
     
         def initialize(transaction)
             @filing_number = transaction[:form].split("/")[-2][0..19]
