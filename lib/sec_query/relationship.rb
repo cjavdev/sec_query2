@@ -1,5 +1,5 @@
 module SecQuery
-    class Relationship < JSONable
+    class Relationship
         
         include MongoMapper::Document
 
@@ -62,6 +62,4 @@ module SecQuery
             end
         end
     end
-
-    timestamps!
 end

@@ -1,5 +1,5 @@
 module SecQuery
-    class Entity < JSONable
+    class Entity
 
         attr_accessor :first, :middle, :last, :name, :symbol, :cik, :url, :type, :sic, :location, :state_of_inc, :formerly, :mailing_address, :business_address, :relationships, :transactions, :filings
         
@@ -245,10 +245,6 @@ module SecQuery
             end
 
             return temp;
-        end
-
-        def self.to_json(entity)
-
         end
 
         def self.log(entity)

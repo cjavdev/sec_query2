@@ -1,5 +1,5 @@
 module SecQuery
-    class Filing < JSONable
+    class Filing
         include MongoMapper::Document
 
         attr_accessor :cik, :title, :summary, :link, :term, :date, :file_id
@@ -42,7 +42,6 @@ module SecQuery
                 return entity
             end
         end 
+        timestamps!
     end
-    
-    timestamps!
 end
