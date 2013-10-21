@@ -46,7 +46,6 @@ module SecQuery
                 updated = (entry/:updated).innerHTML
                 if updated != nil and updated != "-"
                   filing[:date] = DateTime.iso8601((entry/:updated).innerHTML).to_time
-                  puts "filing date = #{filing[:date]}"
                 end
                 filing[:file_id] = (entry/:id).innerHTML.split("=").last
 
