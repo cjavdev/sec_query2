@@ -1,9 +1,10 @@
 module SecQuery
     class Entity
 
-        attr_accessor :first, :middle, :last, :name, :symbol, :cik, :url, :type, :sic, :location, :state_of_inc, :formerly, :mailing_address, :business_address, :relationships, :transactions, :filings
+        attr_accessor :symbol, :first, :middle, :last, :name, :symbol, :cik, :url, :type, :sic, :location, :state_of_inc, :formerly, :mailing_address, :business_address, :relationships, :transactions, :filings
         
         def initialize(entity)
+            @symbol = entity[:symbol]
             @first = entity[:first]
             @middle = entity[:middle]
             @last = entity[:last]
@@ -27,6 +28,7 @@ module SecQuery
         def self.find(entity_args, *options)
             
             temp = {}
+            temp[:symbol] = entity_args[:symbol]
             temp[:url] = Entity.url(entity_args)
             temp[:cik] = Entity.cik(temp[:url], entity_args)
         
