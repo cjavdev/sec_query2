@@ -11,12 +11,14 @@ filename = "./data/companies.csv"
       res.transactions.each do |trans|
         trans.save
       end
+      puts "\twrote transactions"
     end
 
     if !res.filings.nil?
       res.filings.each do |filing|
         filing.save
       end
+      puts "\twrote filings"
     end
   end
 end
