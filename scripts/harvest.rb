@@ -17,22 +17,8 @@ filename = "./data/companies.csv"
   puts symbol
   res = SecQuery::Entity.find(symbol, :transactions=> true, :filings=>true) 
   if res
-    # TODO: refactor (DRY)
-    if !res.transactions.empty?
-      # add in symbol
-=begin
-      hashes = JSON.parse(res.transactions.to_json)
-      hashes.each do |hash| 
-        hash['symbol'] = symbol
-        @transactions.insert(hash)
-      end
-
-      File.open("./results/transactions/#{symbol}.json", "w") { |f| f.write(hashes.to_json) }
-      puts "\tWrote transactions"
-=end
-      res.transactions.each do |trans|
-        trans.save
-      end
+    res.transactions.each do |trans|
+      trans.save
     end
 
 =begin
