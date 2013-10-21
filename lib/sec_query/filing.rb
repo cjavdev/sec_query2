@@ -14,6 +14,7 @@ module SecQuery
         key :file_id, String
 
         def initialize(filing)
+            @symbol = filing[:symbol]
             @cik = filing[:cik]
             @title = filing[:title]
             @summary = filing[:summary]
@@ -42,7 +43,7 @@ module SecQuery
                 filing[:summary] = CGI.unescapeHTML((entry/:summary).innerHTML)
                 filing[:link] =  (entry/:link)[0].get_attribute("href")
                 filing[:term] = (entry/:category)[0].get_attribute("term")
-                if filing[:date] != nil and filing[:date] != "-"
+                if entry[:updated] != nil and entry[:updated] != "-"
                   filing[:date] = DateTime.iso8601((entry/:updated).innerHTML).to_time
                 end
                 filing[:file_id] = (entry/:id).innerHTML.split("=").last
