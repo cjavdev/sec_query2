@@ -18,6 +18,7 @@ filename = "./data/companies.csv"
     # TODO: refactor (DRY)
     if !res.transactions.empty?
       # add in symbol
+=begin
       hashes = JSON.parse(res.transactions.to_json)
       hashes.each do |hash| 
         hash['symbol'] = symbol
@@ -26,8 +27,11 @@ filename = "./data/companies.csv"
 
       File.open("./results/transactions/#{symbol}.json", "w") { |f| f.write(hashes.to_json) }
       puts "\tWrote transactions"
+=end
+      res.transactions.save
     end
 
+=begin
     if !res.filings.empty?
       # unescape summary
       hashes = JSON.parse(res.filings.to_json)
@@ -39,5 +43,6 @@ filename = "./data/companies.csv"
       File.open("./results/filings/#{symbol}.json", "w") { |f| f.write(hashes.to_json) }
       puts "\tWrote filings"
     end
+=end
   end
 end
