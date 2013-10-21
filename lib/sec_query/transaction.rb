@@ -28,9 +28,10 @@ module SecQuery
         def initialize(transaction)
             @filing_number = transaction[:form].split("/")[-2][0..19]
             @code = transaction[:code]
+            puts transaction[:date]  
             if transaction[:date] != nil and transaction[:date] != "-"
                 date = transaction[:date].split("-")
-                @date = Time.utc(date[0],date[1],date[2])
+                @date = Time.utc(date[0],date[1],date[2]).to_mongo
             end
             @reporting_owner = transaction[:reporting_owner]
             @form = transaction[:form]
