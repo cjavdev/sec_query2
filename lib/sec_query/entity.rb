@@ -105,6 +105,11 @@ module SecQuery
             response = Entity.query(url+"&output=atom")
             doc = Hpricot::XML(response)
             data = doc.search("//feed/title")[0];
+
+            if data.nil?
+              return false
+            end
+
             if data.inner_text == "EDGAR Search Results"
                 tbl =  doc.search("//span[@class='companyMatch']")
                 if tbl && tbl.innerHTML != ""
