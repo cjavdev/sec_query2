@@ -171,22 +171,25 @@ module SecQuery
 
         def self.info(doc)
             info={}
-            lines = doc.search("//td[@bgcolor='#E6E6E6']")[0].parent.parent.search("//tr")
-            td = lines[0].search("//td//b").innerHTML
-            info[:name] = td.gsub(td.scan(/\(([^)]+)\)/).to_s, "").gsub("()", "").gsub("\n", "")
-            lines = lines[1].search("//table")[0].search("//tr//td")
-            if lines[0].search("a")[0] != nil
-                info[:sic] = lines[0].search("a")[0].innerHTML
-            end
-            if lines[0].search("a")[1] != nil
-                info[:location] = lines[0].search("a")[1].innerHTML
-            end
+            node = doc.search("//td[@bgcolor='#E6E6E6']")[0]
+            if !node.nil?
+              lines = node.parent.parent.search("//tr")
+              td = lines[0].search("//td//b").innerHTML
+              info[:name] = td.gsub(td.scan(/\(([^)]+)\)/).to_s, "").gsub("()", "").gsub("\n", "")
+              lines = lines[1].search("//table")[0].search("//tr//td")
+              if lines[0].search("a")[0] != nil
+                  info[:sic] = lines[0].search("a")[0].innerHTML
+              end
+              if lines[0].search("a")[1] != nil
+                  info[:location] = lines[0].search("a")[1].innerHTML
+              end
 
-            if lines[0].search("b")[0] != nil and lines[0].search("b")[0].innerHTML.squeeze(" ") != " "
-                info[:state_of_inc] = lines[0].search("b")[0].innerHTML
-            end
-            if lines[1] != nil and lines[1].search("font")
-                info[:formerly] = lines[1].search("font").innerHTML.gsub("formerly: ", "").gsub("<br />", "").gsub("\n", "; ")
+              if lines[0].search("b")[0] != nil and lines[0].search("b")[0].innerHTML.squeeze(" ") != " "
+                  info[:state_of_inc] = lines[0].search("b")[0].innerHTML
+              end
+              if lines[1] != nil and lines[1].search("font")
+                  info[:formerly] = lines[1].search("font").innerHTML.gsub("formerly: ", "").gsub("<br />", "").gsub("\n", "; ")
+              end
             end
             return info
         end
