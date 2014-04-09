@@ -8,7 +8,7 @@ describe SecQuery::Entity do
     let(:apple){{name: "APPLE INC",sic: "3571", symbol: "aapl", cik:"0000320193"}}
 
     context "when quering by stock symbol" do
-      it "lazely" do  
+      it "lazely" do
         entity = SecQuery::Entity.find(apple[:symbol])
         entity.cik.should eql(apple[:cik])
       end
@@ -17,9 +17,9 @@ describe SecQuery::Entity do
         entity.cik.should eql(apple[:cik])
       end
     end
-    
+
     context "when querying by entity name" do
-      it "lazely" do  
+      it "lazely" do
         entity = SecQuery::Entity.find(apple[:name])
         entity.cik.should eql(apple[:cik])
       end
@@ -28,9 +28,9 @@ describe SecQuery::Entity do
         entity.cik.should eql(apple[:cik])
       end
     end
-    
+
     context "when querying by cik" do
-      it "lazely" do  
+      it "lazely" do
         entity = SecQuery::Entity.find(apple[:cik])
         entity.name.should match(apple[:name])
       end
@@ -40,11 +40,11 @@ describe SecQuery::Entity do
       end
     end
   end
-  
+
   describe "People Queries" do
 
     let(:jobs){{first: "Steve", middle: "P", last: "Jobs", :cik => "0001007844"}}
-  
+
     context "when querying by name" do
       it "first, middle and last name" do
         entity = SecQuery::Entity.find({:first=> jobs[:first], :middle=> jobs[:middle], :last=> jobs[:last]})
@@ -52,11 +52,11 @@ describe SecQuery::Entity do
       end
     end
   end
-  
+
   describe "Relationships, Transactions and Filings" do
-    
+
     ## Using Steve, because data should not change in the future. RIP.
-    
+
     let(:jobs){{
       first: "Steve", middle: "P", last: "Jobs", :cik => "0001007844",
       relationships:[
@@ -85,9 +85,9 @@ describe SecQuery::Entity do
         {cik: "0001007844", file_id: "0001104659-03-004723"}
       ]
     }}
-    
+
     let(:entity) {SecQuery::Entity.find({:first=> "Steve",  middle: "P", last: "Jobs", :cik => "0001007844"}, true)}
-    
+
     context "when quering entities with option 'true'" do
       it "should provide relationships" do
         entity.relationships.each_with_index do |r, i|

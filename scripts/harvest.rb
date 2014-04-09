@@ -2,10 +2,10 @@ require "csv"
 require "sec_query"
 
 filename = "./data/companies.csv"
-::CSV.foreach(filename, {:col_sep => ";"}) do |row|
+::CSV.foreach(filename, { :col_sep => ";" }) do |row|
   symbol = row[0]
   puts symbol
-  res = SecQuery::Entity.find(symbol, :transactions=> true, :filings=>true) 
+  res = SecQuery::Entity.find(symbol, :transactions=> true, :filings=>true)
   if res
     if !res.transactions.nil?
       res.transactions.each do |trans|
