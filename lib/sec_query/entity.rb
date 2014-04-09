@@ -17,7 +17,7 @@ module SecQuery
       @formerly = entity[:formerly]
       @symbol = entity[:symbol]
       @cik = entity[:cik]
-      @type =entity[:type]
+      @type = entity[:type]
       @mailing_address = entity[:mailing_address]
       @business_address = entity[:business_address]
       @relationships = entity[:relationships]
@@ -46,11 +46,11 @@ module SecQuery
       temp = Entity.parse_document(temp, doc)
 
       ### Get Additional Arguments and Query Additional Details
-      if !options.empty?;
-        temp[:transactions]=[]
-        temp[:filings] =[]
-        options = Entity.options(temp, options);
-        temp = Entity.details(temp, options);
+      unless options.empty?
+        temp[:transactions]= []
+        temp[:filings] = []
+        options = Entity.options(temp, options)
+        temp = Entity.details(temp, options)
       end
 
       ###  Return entity Object
@@ -59,7 +59,7 @@ module SecQuery
     end
 
     def self.query(url)
-      RestClient.get(url){ |response, request, result, &block|
+      RestClient.get(url) { |response, request, result, &block|
         case response.code
         when 200
           return response
@@ -72,7 +72,7 @@ module SecQuery
     def self.url(args)
       if args.is_a?(Hash)
         if args[:symbol] != nil
-          string = "CIK="+args[:symbol]
+          string = "CIK=#{ args[:symbol] }"
         elsif args[:cik] != nil
           string = "CIK="+args[:cik]
         elsif args[:first] != nil and args[:last]
@@ -82,18 +82,17 @@ module SecQuery
         end
       elsif args.is_a?(String)
         begin Float(args)
-          string = "CIK="+args
+          string = "CIK=#{ args }"
         rescue
           if args.length <= 4
-            string = "CIK="+args
+            string = "CIK=#{ args }"
           else
-            string = "company="+args.gsub(/[(,?!\''"":.)]/, '')
+            string = "company=#{ args.gsub(/[(,?!\''"":.)]/, '') }"
           end
         end
       end
       string = string.to_s.gsub(" ", "+")
-      url = "http://www.sec.gov/cgi-bin/browse-edgar?"+string+"&action=getcompany"
-      return url
+      "http://www.sec.gov/cgi-bin/browse-edgar?#{ string }&action=getcompany"
     end
 
     def self.cik(url, entity)
