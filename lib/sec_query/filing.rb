@@ -25,16 +25,17 @@ module SecQuery
     end
 
     def self.find(entity, start, count, limit)
-      if start == nil; start = 0; end
-      if count == nil; count = 80; end
+      start = 0 if start.nil?
+      count = 80 if count.nil?
       url = "http://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=#{ entity[:cik] }&output=atom&count=#{ count.to_s }&start=#{ start.to_s }"
       response = Entity.query(url)
       doc = Hpricot::XML(response)
-      entries = doc.search(:entry);
-      query_more = false;
+      entries = doc.search(:entry)
+      query_more = false
+
       for entry in entries
-        query_more = true;
-        filing={}
+        query_more = true
+        filing = {}
         filing[:symbol] = entity[:symbol]
         filing[:cik] = entity[:cik]
         filing[:title] = (entry/:title).innerHTML
@@ -42,14 +43,14 @@ module SecQuery
         filing[:link] =  (entry/:link)[0].get_attribute("href")
         filing[:term] = (entry/:category)[0].get_attribute("term")
         updated = (entry/:updated).innerHTML
-        if updated != nil and updated != "-"
+        if updated != nil && updated != "-"
           filing[:date] = DateTime.iso8601((entry/:updated).innerHTML).to_time
         end
         filing[:file_id] = (entry/:id).innerHTML.split("=").last
         entity[:filings] << Filing.new(filing)
       end
 
-      if query_more and limit == nil || query_more and !limit
+      if query_more && limit == nil || query_more && !limit
         Filing.find(entity, start+count, count, limit);
       else
         return entity

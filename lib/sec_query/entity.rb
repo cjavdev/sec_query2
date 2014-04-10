@@ -95,14 +95,12 @@ module SecQuery
       "http://www.sec.gov/cgi-bin/browse-edgar?#{ string }&action=getcompany"
     end
 
+    # TODO: sometimes this returns false and sometimes this returns the actual cik?
     def self.cik(url, entity)
       response = Entity.query(url+"&output=atom")
       doc = Hpricot::XML(response)
       data = doc.search("//feed/title")[0]
-
-      if data.nil?
-        return false
-      end
+      return false if data.nil?
 
       if data.inner_text == "EDGAR Search Results"
         tbl =  doc.search("//span[@class='companyMatch']")
@@ -133,19 +131,20 @@ module SecQuery
       type = "issuer"
       entity = doc.search("//table").search("//td").search("b[text()*='"+text+"']")
       if entity.empty?
-        url = "http://www.sec.gov/cgi-bin/own-disp?action=getowner&CIK="+cik
+        url = "http://www.sec.gov/cgi-bin/own-disp?action=getowner&CIK=#{ cik }"
         response = query(url)
         doc = Hpricot(response)
         text = "Ownership Reports for entitys:"
         type = "owner"
-        entity = doc.search("//table").search("//td").search("b[text()*='"+text+"']")
+        entity = doc.search("//table").search("//td").search("b[text()*='#{ text }']")
       end
       [doc, type]
     end
 
     def self.parse_document(temp, doc)
-      temp[:type] = doc[1]
       info = Entity.info(doc[0])
+
+      temp[:type] = doc[1]
       temp[:name] = info[:name]
       temp[:location] = info[:location]
       temp[:sic] = info[:sic]
@@ -158,7 +157,7 @@ module SecQuery
       ### Get Business Address
       temp[:business_address] = Entity.business_address(doc[0])
 
-      return temp
+      temp
     end
 
     def self.info(doc)
@@ -172,6 +171,7 @@ module SecQuery
         if lines[0].search("a")[0] != nil
           info[:sic] = lines[0].search("a")[0].innerHTML
         end
+
         if lines[0].search("a")[1] != nil
           info[:location] = lines[0].search("a")[1].innerHTML
         end
@@ -179,6 +179,7 @@ module SecQuery
         if lines[0].search("b")[0] != nil and lines[0].search("b")[0].innerHTML.squeeze(" ") != " "
           info[:state_of_inc] = lines[0].search("b")[0].innerHTML
         end
+
         if lines[1] != nil and lines[1].search("font")
           info[:formerly] = lines[1].search("font").innerHTML.gsub("formerly: ", "").gsub("<br />", "").gsub("\n", "; ")
         end
@@ -221,7 +222,7 @@ module SecQuery
         args[:transactions]= options[0][:transactions]
         args[:filings] = options[0][:filings]
       end
-      return args
+      args
     end
 
     def self.details(temp, options)
@@ -232,16 +233,16 @@ module SecQuery
       end
 
       ## Get Transactions for entity
-      if options[:transactions] != nil and options[:transactions].is_a?(Hash)
+      if options[:transactions] != nil && options[:transactions].is_a?(Hash)
         temp = Transaction.find(temp, options[:transactions][:start], options[:transactions][:count], options[:transactions][:limit])
       elsif options[:transactions] != nil && options[:transactions] == true
         temp = Transaction.find(temp, nil, nil, nil)
       end
 
       ## Get Filings for entity
-      if options[:filings] != nil and options[:filings].is_a?(Hash)
+      if options[:filings] != nil && options[:filings].is_a?(Hash)
         temp = Filing.find(temp, options[:filings][:start], options[:filings][:count], options[:filings][:limit])
-      elsif options[:filings] != nil and options[:filings] == true
+      elsif options[:filings] != nil && options[:filings] == true
         temp = Filing.find(temp, nil, nil, nil)
       end
       temp
@@ -250,20 +251,24 @@ module SecQuery
     def self.log(entity)
       if entity != false
         puts "\n\t# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n\n"
-        puts "\t"+entity.name
-        puts "\t("+entity.cik+")"
+        puts "\t#{ entity.name }"
+        puts "\t(#{ entity.cik })"
         if entity.formerly && entity.formerly != ""
-          puts "\tFormerly: "+entity.formerly
+          puts "\tFormerly: #{ entity.formerly }"
         end
+
         if entity.sic
-          puts "\tSIC = "+entity.sic
+          puts "\tSIC = #{ entity.sic }"
         end
+
         if entity.location
-          puts "\tLocation: "+entity.location+", "
+          puts "\tLocation: #{ entity.location }, "
         end
+
         if entity.state_of_inc
-          puts "\tState of Incorporation: "+entity.state_of_inc
+          puts "\tState of Incorporation: #{ entity.state_of_inc }"
         end
+
         if entity.mailing_address
           puts "\tMailing Address:\t"+ entity.mailing_address.inspect.gsub('\n', ' ').squeeze(" ")
         end
@@ -272,32 +277,33 @@ module SecQuery
           puts "\tBusiness Address:\t"+ entity.business_address.inspect.gsub('\n', ' ').squeeze(" ")
         end
 
-
         if !entity.relationships
           puts "\n\tRELATIONSHIPS:\t0 Total"
         else
-          puts "\n\tRELATIONSHIPS:\t"+ entity.relationships.count.to_s+" Total"
+          puts "\n\tRELATIONSHIPS:\t#{ entity.relationships.count.to_s } Total"
           printf("\t%-40s %-15s %-30s %-10s\n\n","Entity", "CIK", "Position", "Date")
           for relationship in entity.relationships
             printf("\t%-40s %-15s %-30s %-10s\n",relationship.name, relationship.cik, relationship.position, relationship.date)
           end
         end
+
         if entity.transactions
-          puts "\n\tTRANSACTIONS:\t"+ entity.transactions.count.to_s+" Total"
+          puts "\n\tTRANSACTIONS:\t#{ entity.transactions.count.to_s } Total"
           printf("\t%-20s %-10s %-5s %-10s %-10s %-10s %-15s %-10s\n\n","Owner", "CIK", "Modes", "Type","Shares","Price","Owned","Date")
           for transaction in entity.transactions
             printf("\t%-20s %-10s %-5s %-10s%-10s %-10s %-15s %-10s\n", transaction.reporting_owner,transaction.owner_cik,transaction.modes, transaction.type,transaction.shares,transaction.price,transaction.owned,transaction.date)
           end
         end
+
         if entity.filings
           puts "\n\tFILINGS:\t"+ entity.filings.count.to_s+" Total"
           printf("\t%-10s %-30s %-20s\n\n","Type", "File ID", "Date")
+
           for filing in entity.filings
             printf("\t%-10s %-30s %-20s\n",filing.term, filing.file_id, filing.date)
           end
-
         end
-        puts "\t"+entity.url+"\n\n"
+        puts "\t#{ entity.url }\n\n"
       else
         return "No Entity found."
       end
