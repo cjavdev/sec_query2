@@ -10,12 +10,12 @@ module SecQuery
       @name = relationship[:name]
       @position = relationship[:position]
       date = relationship[:date].split("-")
-      @date = Time.utc(date[0],date[1],date[2].to_i)
+      @date = Time.utc(date[0], date[1], date[2].to_i)
     end
 
 
     def self.find(entity)
-      @relationships =[]
+      @relationships = []
 
       if entity[:doc] != nil
         doc = entity[:doc]
@@ -29,6 +29,7 @@ module SecQuery
         type = "Ownership Reports from:"
         lines = doc.search("//table").search("//td").search("b[text()*='"+type+"']")
       end
+
       if !lines.empty?
         relationship = {}
         lines= lines[0].parent.search("//table")[0].search("//tr")
@@ -48,6 +49,7 @@ module SecQuery
         return false
       end
     end
+
     def self.print(relationships)
       if relationships
         puts "\n\t"+relationships[1]+"\n"

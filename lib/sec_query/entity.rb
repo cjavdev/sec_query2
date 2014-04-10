@@ -37,7 +37,7 @@ module SecQuery
       temp[:cik] = Entity.cik(temp[:url], entity_args)
 
       if !temp[:cik] || temp[:cik] == ""
-        puts "No Entity found for query:  "+temp[:url]
+        puts "No Entity found for query: #{ temp[:url] }"
         return false
       end
 
@@ -91,13 +91,14 @@ module SecQuery
           end
         end
       end
+      # TODO: this should probably use url encode?
       string = string.to_s.gsub(" ", "+")
       "http://www.sec.gov/cgi-bin/browse-edgar?#{ string }&action=getcompany"
     end
 
     # TODO: sometimes this returns false and sometimes this returns the actual cik?
     def self.cik(url, entity)
-      response = Entity.query(url+"&output=atom")
+      response = Entity.query("#{ url }&output=atom")
       doc = Hpricot::XML(response)
       data = doc.search("//feed/title")[0]
       return false if data.nil?
@@ -129,7 +130,7 @@ module SecQuery
       doc = Hpricot(response)
       text = "Ownership Reports from:"
       type = "issuer"
-      entity = doc.search("//table").search("//td").search("b[text()*='"+text+"']")
+      entity = doc.search("//table").search("//td").search("b[text()*='#{ text }']")
       if entity.empty?
         url = "http://www.sec.gov/cgi-bin/own-disp?action=getowner&CIK=#{ cik }"
         response = query(url)

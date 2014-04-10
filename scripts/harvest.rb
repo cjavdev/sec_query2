@@ -1,11 +1,13 @@
-require "csv"
-require "sec_query"
+require 'csv'
+require 'sec_query'
+require 'debugger'
 
 filename = "./data/companies.csv"
 ::CSV.foreach(filename, { :col_sep => ";" }) do |row|
   symbol = row[0]
   puts symbol
-  res = SecQuery::Entity.find(symbol, :transactions=> true, :filings=>true)
+  res = SecQuery::Entity.find(symbol, :transactions => true, :filings => true)
+  debugger
   if res
     if !res.transactions.nil?
       res.transactions.each do |trans|
