@@ -26,11 +26,6 @@ module SecQuery
             feed.entries.each do |entry|
               link = entry.link.href.gsub('-index.htm', '.txt')
               blk.call(link)
-              # title = entry.title.to_s.gsub('<title>', '')
-              # cik = title[title.index('(')+1...title.index(')')]
-              # type = title[0...title.index(' -')].strip
-              # filed_on = entry.updated.to_s.gsub('<updated>', '')
-              #   .gsub('</updated>', '')
             end
           end
           l_start += l_count
