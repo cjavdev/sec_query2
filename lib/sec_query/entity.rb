@@ -1,28 +1,18 @@
+# encoding: utf-8
+
 module SecQuery
   class Entity
-    attr_accessor :symbol, :first, :middle, :last, :name, :symbol, :cik, :url,
-      :type, :sic, :location, :state_of_inc, :formerly, :mailing_address,
-      :business_address, :relationships, :transactions, :filings
+    COLUMNS = [:symbol, :first, :middle, :last, :name, :symbol, :cik, :url,
+               :type, :sic, :location, :state_of_inc, :formerly,
+               :mailing_address, :business_address, :relationships,
+               :transactions, :filings]
+
+    attr_accessor *COLUMNS
 
     def initialize(entity)
-      @symbol = entity[:symbol]
-      @first = entity[:first]
-      @middle = entity[:middle]
-      @last = entity[:last]
-      @name = entity[:name]
-      @sic = entity[:sic]
-      @url = entity[:url]
-      @location = entity[:location]
-      @state_of_inc = entity[:state_of_inc]
-      @formerly = entity[:formerly]
-      @symbol = entity[:symbol]
-      @cik = entity[:cik]
-      @type = entity[:type]
-      @mailing_address = entity[:mailing_address]
-      @business_address = entity[:business_address]
-      @relationships = entity[:relationships]
-      @transactions = entity[:transactions]
-      @filings = entity[:filings]
+      COLUMNS.each do |col|
+        instance_variable_set("@#{ col }".to_sym, entity[col])
+      end
     end
 
     def self.find(entity_args, *options)
@@ -36,7 +26,7 @@ module SecQuery
       temp[:url] = SecUrl.new(entity_args) # Entity.url(entity_args)
       temp[:cik] = Entity.cik(temp[:url], entity_args)
 
-      if !temp[:cik] || temp[:cik] == ""
+      if !temp[:cik] || temp[:cik] == ''
         puts "No Entity found for query: #{ temp[:url] }"
         return false
       end
@@ -47,7 +37,7 @@ module SecQuery
 
       ### Get Additional Arguments and Query Additional Details
       unless options.empty?
-        temp[:transactions]= []
+        temp[:transactions] = []
         temp[:filings] = []
         options = Entity.options(temp, options)
         temp = Entity.details(temp, options)
@@ -55,19 +45,19 @@ module SecQuery
 
       ###  Return entity Object
       @entity = Entity.new(temp)
-      return @entity
+      @entity
     end
 
     # maybe this should be moved into the URL?
     def self.query(url)
-      RestClient.get(url) { |response, request, result, &block|
+      RestClient.get(url) do |response, request, result, &block|
         case response.code
         when 200
           return response
         else
           response.return!(request, result, &block)
         end
-      }
+      end
     end
 
 #     def self.url(args)
@@ -97,19 +87,20 @@ module SecQuery
 #       "http://www.sec.gov/cgi-bin/browse-edgar?#{ string }&action=getcompany"
 #     end
 
-    # TODO: sometimes this returns false and sometimes this returns the actual cik?
+    # TODO: sometimes this returns false and
+    # sometimes this returns the actual cik?
     def self.cik(url, entity)
       response = Entity.query(url.output_atom)
       doc = Hpricot::XML(response)
-      data = doc.search("//feed/title")[0]
+      data = doc.search('//feed/title')[0]
       return false if data.nil?
 
-      if data.inner_text == "EDGAR Search Results"
+      if data.inner_text == 'EDGAR Search Results'
         tbl =  doc.search("//span[@class='companyMatch']")
-        if tbl && tbl.innerHTML != ""
-          tbl = tbl[0].parent.search("table")[0].search("tr")
+        if tbl && tbl.innerHTML != ''
+          tbl = tbl[0].parent.search('table')[0].search('tr')
           for tr in tbl
-            td = tr.search("td")
+            td = tr.search('td')
             if td[1] != nil && entity[:middle] != nil && td[1].innerHTML.downcase == (entity[:last]+" "+entity[:first]+" "+entity[:middle]).downcase or td[1] != nil && td[1].innerHTML.downcase == (entity[:last]+" "+entity[:first]).downcase
               cik = td[0].search("a").innerHTML
               return cik

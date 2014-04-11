@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module SecQuery
   class Poll
     attr_reader :url
@@ -7,26 +9,31 @@ module SecQuery
       @start, @count, @links_stack = start, count, []
     end
 
-    def url(local_start = start, local_count = count)
-      SecQuery::SecUrl.build({ owner: "only", start: local_start, count: local_count })
+    def url(l_start = start, l_count = count)
+      SecQuery::SecUrl.build(
+        action: "getcurrent",
+        owner: 'only',
+        start: l_start,
+        count: l_count).output_atom
     end
 
-    def fetch_links(local_start = start, local_count = count, max = 10000, &blk)
-      while(local_start + local_count < max)
+    def fetch_links(l_start = start, l_count = count, max = 10_000, &blk)
+      while(l_start + l_count < max)
         begin
-          open(self.url(local_start, local_count)) do |rss|
+          open(url(l_start, l_count)) do |rss|
             feed = RSS::Parser.parse(rss)
             p "found #{ feed.entries.length } more entries"
             feed.entries.each do |entry|
-              link = entry.link.href.gsub("-index.htm", ".txt")
+              link = entry.link.href.gsub('-index.htm', '.txt')
               blk.call(link)
-              # title = entry.title.to_s.gsub("<title>", "")
-              # cik = title[title.index("(")+1...title.index(")")]
-              # type = title[0...title.index(" -")].strip
-              # filed_on = entry.updated.to_s.gsub("<updated>", "").gsub("</updated>", "")
+              # title = entry.title.to_s.gsub('<title>', '')
+              # cik = title[title.index('(')+1...title.index(')')]
+              # type = title[0...title.index(' -')].strip
+              # filed_on = entry.updated.to_s.gsub('<updated>', '')
+              #   .gsub('</updated>', '')
             end
           end
-          local_start += local_count
+          l_start += l_count
         rescue OpenURI::HTTPError
           return
         end
@@ -34,7 +41,6 @@ module SecQuery
     end
 
     def poll
-      debugger
       fetch_links(0, 40, 41) do |link|
         links_stack.push(link)
       end
