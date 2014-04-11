@@ -33,7 +33,7 @@ module SecQuery
         temp[:symbol] = entity_args
       end
 
-      temp[:url] = Entity.url(entity_args)
+      temp[:url] = SecUrl.new(entity_args) # Entity.url(entity_args)
       temp[:cik] = Entity.cik(temp[:url], entity_args)
 
       if !temp[:cik] || temp[:cik] == ""
@@ -58,6 +58,7 @@ module SecQuery
       return @entity
     end
 
+    # maybe this should be moved into the URL?
     def self.query(url)
       RestClient.get(url) { |response, request, result, &block|
         case response.code
@@ -69,36 +70,36 @@ module SecQuery
       }
     end
 
-    def self.url(args)
-      if args.is_a?(Hash)
-        if args[:symbol] != nil
-          string = "CIK=#{ args[:symbol] }"
-        elsif args[:cik] != nil
-          string = "CIK="+args[:cik]
-        elsif args[:first] != nil and args[:last]
-          string = "company="+args[:last]+" "+args[:first]
-        elsif args[:name] != nil
-          string = "company="+args[:name].gsub(/[(,?!\''"":.)]/, '')
-        end
-      elsif args.is_a?(String)
-        begin Float(args)
-          string = "CIK=#{ args }"
-        rescue
-          if args.length <= 4
-            string = "CIK=#{ args }"
-          else
-            string = "company=#{ args.gsub(/[(,?!\''"":.)]/, '') }"
-          end
-        end
-      end
-      # TODO: this should probably use url encode?
-      string = string.to_s.gsub(" ", "+")
-      "http://www.sec.gov/cgi-bin/browse-edgar?#{ string }&action=getcompany"
-    end
+#     def self.url(args)
+#       if args.is_a?(Hash)
+#         if args[:symbol] != nil
+#           string = "CIK=#{ args[:symbol] }"
+#         elsif args[:cik] != nil
+#           string = "CIK="+args[:cik]
+#         elsif args[:first] != nil and args[:last]
+#           string = "company="+args[:last]+" "+args[:first]
+#         elsif args[:name] != nil
+#           string = "company="+args[:name].gsub(/[(,?!\''"":.)]/, '')
+#         end
+#       elsif args.is_a?(String)
+#         begin Float(args)
+#           string = "CIK=#{ args }"
+#         rescue
+#           if args.length <= 4
+#             string = "CIK=#{ args }"
+#           else
+#             string = "company=#{ args.gsub(/[(,?!\''"":.)]/, '') }"
+#           end
+#         end
+#       end
+#       # TODO: this should probably use url encode?
+#       string = string.to_s.gsub(" ", "+")
+#       "http://www.sec.gov/cgi-bin/browse-edgar?#{ string }&action=getcompany"
+#     end
 
     # TODO: sometimes this returns false and sometimes this returns the actual cik?
     def self.cik(url, entity)
-      response = Entity.query("#{ url }&output=atom")
+      response = Entity.query(url.output_atom)
       doc = Hpricot::XML(response)
       data = doc.search("//feed/title")[0]
       return false if data.nil?
@@ -209,7 +210,7 @@ module SecQuery
     end
 
     def self.options(temp, options)
-      args={}
+      args = {}
       if options.is_a?(Array) && options.length == 1 && options[0] == true
         args[:relationships] = true
         args[:transactions]= true
@@ -234,16 +235,16 @@ module SecQuery
       end
 
       ## Get Transactions for entity
-      if options[:transactions] != nil && options[:transactions].is_a?(Hash)
+      if options[:transactions].is_a?(Hash)
         temp = Transaction.find(temp, options[:transactions][:start], options[:transactions][:count], options[:transactions][:limit])
-      elsif options[:transactions] != nil && options[:transactions] == true
+      elsif !!options[:transactions]
         temp = Transaction.find(temp, nil, nil, nil)
       end
 
       ## Get Filings for entity
-      if options[:filings] != nil && options[:filings].is_a?(Hash)
+      if options[:filings].is_a?(Hash)
         temp = Filing.find(temp, options[:filings][:start], options[:filings][:count], options[:filings][:limit])
-      elsif options[:filings] != nil && options[:filings] == true
+      elsif !!options[:filings]
         temp = Filing.find(temp, nil, nil, nil)
       end
       temp
